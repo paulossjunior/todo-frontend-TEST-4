@@ -1,5 +1,7 @@
 import type { Task, TaskCreateInput, TaskUpdateInput } from '@/types/task'
+import { mockApi } from './mockApi'
 
+const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true'
 const BASE_URL = (import.meta.env.VITE_API_URL ?? 'http://localhost:5000').replace(/\/$/, '')
 
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
@@ -24,7 +26,7 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   return (await response.json()) as T
 }
 
-export const tasksApi = {
+const httpApi = {
   list: () => request<Task[]>('/api/tasks'),
   get: (id: number) => request<Task>(`/api/tasks/${id}`),
   create: (payload: TaskCreateInput) =>
@@ -42,3 +44,5 @@ export const tasksApi = {
       method: 'DELETE',
     }),
 }
+
+export const tasksApi = USE_MOCK ? mockApi : httpApi
