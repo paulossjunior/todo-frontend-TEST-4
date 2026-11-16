@@ -146,6 +146,33 @@ describe('App (integration)', () => {
     expect(wrapper.get('[role="alert"]').text()).toBe('offline')
   })
 
+  it('toggles Filtro X to hide the Concluídas section and show it again', async () => {
+    listMock.mockResolvedValueOnce([
+      makeTask({ id: 1, title: 'Pendente', completed: false }),
+      makeTask({ id: 2, title: 'Feita', completed: true }),
+    ])
+    const wrapper = await mountApp()
+
+    const filterBtn = wrapper.findAll('button').find((b) => b.text() === 'Filtro X')
+    expect(filterBtn).toBeDefined()
+    expect(filterBtn!.attributes('aria-pressed')).toBe('false')
+    expect(wrapper.text()).toContain('Concluídas (1)')
+    expect(wrapper.text()).toContain('Feita')
+
+    await filterBtn!.trigger('click')
+    expect(filterBtn!.attributes('aria-pressed')).toBe('true')
+    expect(filterBtn!.classes()).toContain('filter-button--active')
+    expect(wrapper.text()).not.toContain('Concluídas (1)')
+    expect(wrapper.text()).not.toContain('Feita')
+    expect(wrapper.text()).toContain('Pendentes (1)')
+    expect(wrapper.text()).toContain('Pendente')
+
+    await filterBtn!.trigger('click')
+    expect(filterBtn!.attributes('aria-pressed')).toBe('false')
+    expect(wrapper.text()).toContain('Concluídas (1)')
+    expect(wrapper.text()).toContain('Feita')
+  })
+
   it('shows loading indicator while fetch is in-flight', async () => {
     let resolve!: (v: Task[]) => void
     listMock.mockReturnValueOnce(new Promise<Task[]>((r) => (resolve = r)))

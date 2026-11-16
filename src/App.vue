@@ -1,6 +1,7 @@
 <script setup lang="ts">
   import { onMounted, ref } from 'vue'
   import { storeToRefs } from 'pinia'
+  import FilterButton from '@/components/FilterButton.vue'
   import TaskForm from '@/components/TaskForm.vue'
   import TaskList from '@/components/TaskList.vue'
   import { useTasksStore } from '@/stores/tasks'
@@ -11,6 +12,7 @@
 
   const editing = ref<Task | null>(null)
   const submitting = ref(false)
+  const onlyPending = ref(false)
 
   onMounted(() => {
     store.fetchAll()
@@ -58,6 +60,10 @@
     <p v-if="error" class="app__error" role="alert">{{ error }}</p>
     <p v-if="loading" class="app__loading">Carregando…</p>
 
+    <section class="app__panel app__filters" aria-label="Filtros de tarefas">
+      <FilterButton v-model="onlyPending" label="Filtro X" />
+    </section>
+
     <section class="app__panel">
       <h2 class="app__section-title">Pendentes ({{ pending.length }})</h2>
       <TaskList
@@ -69,7 +75,7 @@
       />
     </section>
 
-    <section class="app__panel">
+    <section v-if="!onlyPending" class="app__panel">
       <h2 class="app__section-title">Concluídas ({{ completed.length }})</h2>
       <TaskList
         :tasks="completed"
@@ -125,5 +131,11 @@
   .app__loading {
     margin: 0;
     color: var(--muted);
+  }
+
+  .app__filters {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
   }
 </style>
